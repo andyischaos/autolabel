@@ -9,7 +9,7 @@ import pandas as pd
 from rich import print as pprint
 from rich.console import Console
 from rich.prompt import Confirm
-
+import time
 from autolabel.cache import (
     BaseCache,
     SQLAlchemyGenerationCache,
@@ -112,6 +112,7 @@ class LabelingAgent:
     def run(
         self,
         dataset: AutolabelDataset,
+        sleep_time: Optional[int] = 0,
         output_name: Optional[str] = None,
         max_items: Optional[int] = None,
         start_index: int = 0,
@@ -271,6 +272,10 @@ class LabelingAgent:
 
             cost += sum(response.costs)
             postfix_dict[self.COST_KEY] = f"{cost:.2f}"
+
+            # Sleep for a bit to avoid rate limiting
+            if sleep_time > 0:
+                time.sleep(sleep_time)
 
             # Evaluate the task every eval_every examples
             if not skip_eval and (current_index + 1) % 100 == 0:
